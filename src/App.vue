@@ -1,32 +1,99 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
+    <Toolbar />
+    <transition name="page">
+      <router-view />
+    </transition>
+    <NewsSpinner :loading="loadingStatus" />
   </div>
 </template>
 
+<script>
+import Toolbar from './components/ToolBar.vue'
+import NewsSpinner from './components/NewsSpinner.vue'
+import bus from '@/utils/bus.js'
+
+export default {
+  components: {
+    Toolbar,
+    NewsSpinner
+  },
+  data() {
+    return {
+      loadingStatus: false
+    }
+  },
+  methods: {
+    startSpinner() {
+      this.loadingStatus = true
+    },
+    endSpinner() {
+      this.loadingStatus = false
+    }
+  },
+  created() {
+    bus.$on('start:spinner', this.startSpinner)
+    bus.$on('end:spinner', this.endSpinner)
+  },
+  beforeDestroy() {
+    bus.$off('start:spinner', this.startSpinner)
+    bus.$off('end:spinner', this.endSpinner)
+  }
+}
+</script>
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+* {
+  box-sizing: border-box;
+}
+body {
+  padding: 0;
+  margin: 0;
+}
+a {
+  text-decoration: none;
+  color: #333;
+}
+a:hover {
+  color: #42b883;
+}
+li {
+  list-style: none;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  color: #333;
 }
 
-nav {
-  padding: 30px;
+.text-container {
+  padding: 20px 40px;
+}
+.text-container p {
+  margin-bottom: 20px;
+}
+.text-container a {
+  color: #333;
+  font-size: 20px;
+  font-weight: 500;
+}
+.text-container a:hover {
+  color: #42b883;
+}
+.text-container span {
+  display: block;
+  margin-top: 5px;
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
+/* Router transition */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.3s ease;
 }
-
-nav a.router-link-exact-active {
-  color: #42b983;
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
 }
 </style>
